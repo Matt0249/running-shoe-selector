@@ -133,6 +133,17 @@ st.title("🏃‍♂️ Running Shoe Selector")
 st.caption("Find your ideal running shoe based on your profile, use case, and design preferences. " \
 "Information is as accurate as possible, but there may be some errors")
 
+with st.expander("About this tool"):
+    st.markdown("""
+    This tool helps you find running shoes based on:
+    - Your experience and weekly mileage  
+    - Your primary goal (fitness, racing, speed, recovery)  
+    - Design features like heel drop, stack height, midsole feel, rocker and plate
+
+    Data is based on independent measurements and may differ slightly from brand marketing specs.
+    """)
+
+
 # ---------------- SIDEBAR ----------------
 with st.sidebar:
     # --- Runner profile ---
