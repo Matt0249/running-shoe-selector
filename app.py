@@ -177,7 +177,7 @@ with st.sidebar:
 
     # --- Geometry & feel ---
     st.header("Geometry & feel")
-    st.caption("Please select your ideal heel-toe drop and also heel stack height. ")
+    st.caption("Please select your ideal heel-toe drop and heel stack height. ")
 
     def band_to_range(choice, series, low_max, mid_max):
         s_min = float(series.min())
@@ -212,7 +212,7 @@ with st.sidebar:
     st.markdown("---")
     st.header("Stability")
     st.caption("Unless you have specifically been recommended to wear stability shoes," \
-    "choose 'neutral'")
+    " choose 'neutral'")
 
     stability = st.selectbox(
         "Support / Stability",
