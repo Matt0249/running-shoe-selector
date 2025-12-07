@@ -74,6 +74,7 @@ def render_shoe_card(row):
         st.write(f"**Rocker:** {row['Rocker Type']}")
         st.write(f"**Stability:** {row['Support/Stability']}")
         st.write(f"**Category:** {row['Category']}")
+        st.write(f"**Carbon Plate:** {row['Carbon Plate']}")
 
         # Optional: weight if you’ve added it
         if "Weight (g)" in row.index:
