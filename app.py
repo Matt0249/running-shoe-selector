@@ -11,14 +11,13 @@ st.markdown("<small style='opacity:0.6'>App loaded ✅</small>", unsafe_allow_ht
 
 # --- Load Data with helpful errors & fallback ---
 @st.cache_data
-@st.cache_data
 def load_data():
     try:
         df = pd.read_csv("shoes.csv")
         required = [
             "Brand", "Model", "Heel Drop (mm)", "Stack Height (mm)",
-            "Weight (g)", "Carbon Plate", 
-            "Rocker Type", "Category",
+            "Weight (g)", "Carbon Plate", "Rocker Type",
+            "Support/Stability", "Category",
         ]
 
         missing = [c for c in required if c not in df.columns]
@@ -73,11 +72,12 @@ def render_shoe_card(row):
         st.write(f"**Heel Drop:** {row['Heel Drop (mm)']} mm")
         st.write(f"**Stack Height:** {row['Stack Height (mm)']} mm")
         st.write(f"**Rocker:** {row['Rocker Type']}")
+        st.write(f"**Stability:** {row['Support/Stability']}")
         st.write(f"**Category:** {row['Category']}")
 
         # Optional: weight if you’ve added it
-        if "weight (g)" in row.index:
-            st.write(f"**Weight:** {row['weight (g)']} g")
+        if "Weight (g)" in row.index:
+            st.write(f"**Weight:** {row['Weight (g)']} g")
 
         notes = str(row.get("Notes", "")).strip()
         if notes:
@@ -104,6 +104,7 @@ if "AffiliateLink" not in df.columns:
 # Normalize types/strings
 df["Carbon Plate"] = df["Carbon Plate"].astype(str).str.strip().str.capitalize()
 df["Rocker Type"] = df["Rocker Type"].astype(str).str.strip().str.capitalize()
+df["Support/Stability"] = df["Support/Stability"].astype(str).str.strip().str.capitalize()
 df["Category"] = df["Category"].astype(str).str.strip()
 
 # --- Session state for search trigger ---
@@ -195,16 +196,27 @@ with st.sidebar:
     col_drop, col_stack = st.columns(2)
     with col_drop:
         drop_band = st.selectbox(
-            "Heel drop",
-            ["Any", "Low", "Medium", "High"],
-            index=0,
-        )
+        "Heel drop",
+        ["Any", "Low", "Medium", "High"],
+        index=0,
+    )
     with col_stack:
         stack_band = st.selectbox(
-            "Stack height",
-            ["Any", "Low", "Medium", "High"],
-            index=0,
-        )
+        "Stack height",
+        ["Any", "Low", "Medium", "High"],
+        index=0,
+    )
+
+# Separate section for stability
+    st.markdown("---")
+    st.header("Stability")
+
+    stability = st.selectbox(
+        "Support / Stability",
+        ["Any", "Neutral", "Stable"],
+        index=0,
+    )
+
 
     heel_drop_range = band_to_range(drop_band, drop_series, low_max=4, mid_max=8)
     stack_height_range = band_to_range(stack_band, stack_series, low_max=30, mid_max=37)
@@ -271,7 +283,10 @@ if st.session_state["run_search"]:
     if rocker != "Any":
         filtered = filtered[filtered["Rocker Type"].str.capitalize() == rocker]
 
-    
+    # Stability filter
+    if stability != "Any":
+        filtered = filtered[filtered["Support/Stability"].str.capitalize() == stability]
+
     # ---------------- SCORING ----------------
     def score_row(row):
         s = 0
@@ -302,15 +317,25 @@ if st.session_state["run_search"]:
             if "racing" in cat_str or "tempo" in cat_str:
                 s += 2
         elif primary_goal == "Recovery / easy miles":
+        # Positive bias for appropriate shoes
             if "daily" in cat_str or "trainer" in cat_str or "recovery" in cat_str:
                 s += 2
+        # Penalty: racing shoes are generally not suitable for recovery
+            if "racing" in cat_str:
+                s -= 1
+
         elif primary_goal == "General fitness":
             if "daily" in cat_str or "trainer" in cat_str:
                 s += 1
 
         if experience == "Beginner":
-            if row["Stack Height (mm)"] >= 35 and row["Heel Drop (mm)"] >= 6:
+            if "daily" in cat_str and row["Heel Drop (mm)"] >= 6:
                 s += 1
+
+        # Penalty: full-on racing shoes are usually not ideal for beginners
+            if "racing" in cat_str:
+                s -= 1
+
         elif experience == "Advanced":
             if "racing" in cat_str or "tempo" in cat_str:
                 s += 1
@@ -322,6 +347,8 @@ if st.session_state["run_search"]:
         filtered["Match Score"] = filtered.apply(score_row, axis=1)
         filtered = filtered.sort_values(["Match Score", "Stack Height (mm)"],
                                         ascending=[False, True])
+        
+
 
    # ---------------- COMPARISON ----------------
 st.subheader("Compare shoes (optional)")
