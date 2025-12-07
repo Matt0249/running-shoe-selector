@@ -242,10 +242,7 @@ with st.sidebar:
     if search_clicked:
         st.session_state["run_search"] = True
 
-    if st.button("Clear cache (reload data)"):
-        st.cache_data.clear()
-        st.experimental_rerun()
-
+    
 # Alias ranges for scoring function
 heel_drop = heel_drop_range
 stack_height = stack_height_range
