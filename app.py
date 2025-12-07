@@ -126,123 +126,120 @@ with st.expander("About this tool"):
 
     Data is based on brand informmation as well as  independent measurements, so may differ slightly from brand marketing specs.
     """)
+# ---------------- FILTER CONTROLS (MAIN PAGE) ----------------
 
+st.markdown("### 1. Runner profile")
 
-# ---------------- SIDEBAR ----------------
-with st.sidebar:
-    # --- Runner profile ---
-    st.header("Runner profile")
-
+col_prof_1, col_prof_2 = st.columns(2)
+with col_prof_1:
     experience = st.selectbox(
         "Experience level",
         ["Beginner", "Intermediate", "Advanced"],
         index=1,
     )
 
+with col_prof_2:
     mileage = st.selectbox(
         "Weekly mileage",
         ["<20 km", "20–40 km", "40–60 km", ">60 km"],
         index=1,
     )
 
-    primary_goal = st.selectbox(
-        "Primary goal",
-        [
-            "General fitness",
-            "Long-distance racing (half/marathon)",
-            "Speed-focused (5k/10k)",
-            "Recovery / easy miles",
-        ],
-        index=0,
-    )
+primary_goal = st.selectbox(
+    "Primary goal",
+    [
+        "General fitness",
+        "Long-distance racing (half/marathon)",
+        "Speed-focused (5k/10k)",
+        "Recovery / easy miles",
+    ],
+    index=0,
+)
 
-    st.markdown("---")
+st.markdown("---")
+st.markdown("### 2. Use case")
 
-    # --- Use case ---
-    st.header("Use case")
+use_case_options = [
+    "Daily / Easy",
+    "Tempo / Workout",
+    "Racing",
+]
+selected_use_cases = st.multiselect(
+    "Primary use",
+    use_case_options,
+    default=use_case_options,
+    help="Select one or more use cases to filter shoes.",
+)
 
-    use_case_options = [
-        "Daily / Easy",
-        "Tempo / Workout",
-        "Racing",
-        # Later: "Trail", "Stability", etc.
-    ]
-    selected_use_cases = st.multiselect(
-        "Primary use",
-        use_case_options,
-        default=use_case_options,
-        help="Select one or more use cases to filter shoes.",
-    )
+st.markdown("---")
+st.markdown("### 3. Geometry & feel")
 
-    st.markdown("---")
+def band_to_range(choice, series, low_max, mid_max):
+    s_min = float(series.min())
+    s_max = float(series.max())
+    if choice == "Low":
+        return (s_min, min(low_max, s_max))
+    elif choice == "Medium":
+        return (max(s_min, low_max), min(mid_max, s_max))
+    elif choice == "High":
+        return (max(s_min, mid_max), s_max)
+    else:  # "Any"
+        return (s_min, s_max)
 
-    # --- Geometry & feel ---
-    st.header("Geometry & feel")
-    st.caption("Please select your ideal heel-toe drop and heel stack height. ")
+drop_series = df["Heel Drop (mm)"]
+stack_series = df["Stack Height (mm)"]
 
-    def band_to_range(choice, series, low_max, mid_max):
-        s_min = float(series.min())
-        s_max = float(series.max())
-        if choice == "Low":
-            return (s_min, min(low_max, s_max))
-        elif choice == "Medium":
-            return (max(s_min, low_max), min(mid_max, s_max))
-        elif choice == "High":
-            return (max(s_min, mid_max), s_max)
-        else:  # "Any"
-            return (s_min, s_max)
-
-    drop_series = df["Heel Drop (mm)"]
-    stack_series = df["Stack Height (mm)"]
-
-    col_drop, col_stack = st.columns(2)
-    with col_drop:
-        drop_band = st.selectbox(
+col_geo_1, col_geo_2 = st.columns(2)
+with col_geo_1:
+    drop_band = st.selectbox(
         "Heel drop",
         ["Any", "Low", "Medium", "High"],
         index=0,
     )
-    with col_stack:
-        stack_band = st.selectbox(
+with col_geo_2:
+    stack_band = st.selectbox(
         "Stack height",
         ["Any", "Low", "Medium", "High"],
         index=0,
     )
 
-# Separate section for stability
-    st.markdown("---")
-    st.header("Stability")
-    st.caption("Unless you have specifically been recommended to wear stability shoes," \
-    " choose 'neutral'")
+heel_drop_range = band_to_range(drop_band, drop_series, low_max=4, mid_max=8)
+stack_height_range = band_to_range(stack_band, stack_series, low_max=30, mid_max=37)
 
-    stability = st.selectbox(
-        "Support / Stability",
-        ["Neutral", "Stable"],
-        index=0,
-    )
+st.markdown("---")
+st.markdown("### 4. Stability")
 
+stability = st.selectbox(
+    "Support / Stability",
+    ["Any", "Neutral", "Stable"],
+    index=0,
+)
 
-    heel_drop_range = band_to_range(drop_band, drop_series, low_max=4, mid_max=8)
-    stack_height_range = band_to_range(stack_band, stack_series, low_max=30, mid_max=37)
+st.markdown("---")
+st.markdown("### 5. Plate & rocker")
 
-    st.markdown("---")
-
-    # --- Plate & rocker ---
-    st.header("Plate & rocker")
-    st.caption("Please select whether you require a carbon/nylon plate and preferred rocker geometry")
-
-
+col_plate, col_rocker = st.columns(2)
+with col_plate:
     carbon = st.selectbox("Carbon plate", ["Any", "Yes", "No", "Nylon"])
+with col_rocker:
     rocker = st.selectbox("Rocker type", ["Any", "Flat", "Moderate", "High"])
 
-    st.markdown("---")
+st.markdown("---")
+st.markdown("### 6. Actions")
 
-    # --- Actions ---
-    search_clicked = st.button("🔍 Search shoes")
-    if search_clicked:
-        st.session_state["run_search"] = True
+# Search + cache buttons now on main page
+search_clicked = st.button("🔍 Search shoes")
+if search_clicked:
+    st.session_state["run_search"] = True
 
-    
+if st.button("Clear cache (reload data)"):
+    st.cache_data.clear()
+    st.experimental_rerun()
+
+# Alias ranges for scoring function (same as before)
+heel_drop = heel_drop_range
+stack_height = stack_height_range
+   
 # Alias ranges for scoring function
 heel_drop = heel_drop_range
 stack_height = stack_height_range
