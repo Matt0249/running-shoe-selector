@@ -17,7 +17,7 @@ def load_data():
         df = pd.read_csv("shoes.csv")
         required = [
             "Brand", "Model", "Heel Drop (mm)", "Stack Height (mm)",
-            "Midsole Firmness (Shore A)", "Weight (g)", "Carbon Plate", 
+            "Weight (g)", "Carbon Plate", 
             "Rocker Type", "Category",
         ]
 
@@ -72,7 +72,6 @@ def render_shoe_card(row):
     with info_col:
         st.write(f"**Heel Drop:** {row['Heel Drop (mm)']} mm")
         st.write(f"**Stack Height:** {row['Stack Height (mm)']} mm")
-        st.write(f"**Midsole Feel:** {midsole_feel_label(row['Midsole Firmness (Shore A)'])}")
         st.write(f"**Rocker:** {row['Rocker Type']}")
         st.write(f"**Category:** {row['Category']}")
 
@@ -92,23 +91,6 @@ def render_shoe_card(row):
     # Small separator
     st.markdown("<hr style='margin:10px 0;'>", unsafe_allow_html=True)
 
-
-def midsole_feel_label(ha_value: float) -> str:
-    """Map midsole firmness number (HA) to a simple feel label."""
-    if ha_value is None or (isinstance(ha_value, float) and np.isnan(ha_value)):
-        return "Unknown"
-    try:
-        ha = float(ha_value)
-    except ValueError:
-        return "Unknown"
-
-    # Adjust these thresholds as you like, based on your lab data
-    if ha <= 14:
-        return "Soft"
-    elif ha <= 18:
-        return "Moderate"
-    else:
-        return "Firm"
 
 # Ensure Image column exists even if it's missing in CSV
 if "Image" not in df.columns:
@@ -138,9 +120,9 @@ with st.expander("About this tool"):
     This tool helps you find running shoes based on:
     - Your experience and weekly mileage  
     - Your primary goal (fitness, racing, speed, recovery)  
-    - Design features like heel drop, stack height, midsole feel, rocker and plate
+    - Design features like heel drop, stack height, rocker and carbon plates
 
-    Data is based on independent measurements and may differ slightly from brand marketing specs.
+    Data is based on brand informmation as well as  independent measurements, so may differ slightly from brand marketing specs.
     """)
 
 
@@ -227,12 +209,6 @@ with st.sidebar:
     heel_drop_range = band_to_range(drop_band, drop_series, low_max=4, mid_max=8)
     stack_height_range = band_to_range(stack_band, stack_series, low_max=30, mid_max=37)
 
-    softness = st.selectbox(
-        "Midsole feel",
-        ["Any", "Soft", "Balanced", "Firm"],
-        index=0,
-    )
-
     st.markdown("---")
 
     # --- Plate & rocker ---
@@ -295,16 +271,7 @@ if st.session_state["run_search"]:
     if rocker != "Any":
         filtered = filtered[filtered["Rocker Type"].str.capitalize() == rocker]
 
-    # Softness heuristics (tuned for your HA range, ~11–21)
-    ha_col = "Midsole Firmness (Shore A)"
-
-    if softness == "Soft":
-        filtered = filtered[filtered[ha_col] <= 14]
-    elif softness == "Firm":
-        filtered = filtered[ha_col] >= 18
-    elif softness == "Balanced":
-        filtered = filtered[ha_col].between(14, 18, inclusive="both")
-
+    
     # ---------------- SCORING ----------------
     def score_row(row):
         s = 0
@@ -324,15 +291,7 @@ if st.session_state["run_search"]:
         if rocker != "Any" and row["Rocker Type"].capitalize() == rocker:
             s += 2
 
-        ha = row["Midsole Firmness (Shore A)"]
-        if softness == "Soft" and ha <= 14:
-            s += 1
-        if softness == "Balanced" and 14 <= ha <= 18:
-            s += 1
-        if softness == "Firm" and ha >= 18:
-            s += 1
-
-
+        
         # Runner profile influence
         cat_str = str(row["Category"]).lower()
 
@@ -400,7 +359,6 @@ else:
                     "Heel Drop (mm)": r["Heel Drop (mm)"],
                     "Stack Height (mm)": r["Stack Height (mm)"],
                     "Weight (g)": r["Weight (g)"] if "Weight (g)" in r.index else None,
-                    "Midsole feel": midsole_feel_label(r["Midsole Firmness (Shore A)"]),
                     "Carbon Plate": r["Carbon Plate"],
                     "Rocker": r["Rocker Type"],
                     "Category": r["Category"],
