@@ -177,6 +177,7 @@ with st.sidebar:
 
     # --- Geometry & feel ---
     st.header("Geometry & feel")
+    st.caption("Please select your ideal heel-toe drop and also heel stack height. ")
 
     def band_to_range(choice, series, low_max, mid_max):
         s_min = float(series.min())
@@ -210,10 +211,12 @@ with st.sidebar:
 # Separate section for stability
     st.markdown("---")
     st.header("Stability")
+    st.caption("Unless you have specifically been recommended to wear stability shoes," \
+    "choose 'neutral'")
 
     stability = st.selectbox(
         "Support / Stability",
-        ["Any", "Neutral", "Stable"],
+        ["Neutral", "Stable"],
         index=0,
     )
 
@@ -225,6 +228,8 @@ with st.sidebar:
 
     # --- Plate & rocker ---
     st.header("Plate & rocker")
+    st.caption("Please select whether you require a carbon/nylon plate and preferred rocker geometry")
+
 
     carbon = st.selectbox("Carbon plate", ["Any", "Yes", "No", "Nylon"])
     rocker = st.selectbox("Rocker type", ["Any", "Flat", "Moderate", "High"])
