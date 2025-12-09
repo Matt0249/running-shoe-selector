@@ -50,18 +50,18 @@ def render_shoe_card(row):
         unsafe_allow_html=True,
     )
 
-    img_col, info_col = st.columns([1, 1.5])
+    img_col, info_col = st.columns([1, 1.2])
 
     # --- Image column ---
     with img_col:
         img_file = str(row.get("Image", "")).strip()
         if img_file:
             if img_file.lower().startswith("http"):
-                st.image(img_file, width=200)  # your chosen size
+                st.image(img_file, width=300)  # your chosen size
             else:
                 img_path = IMAGE_DIR / img_file
                 if img_path.is_file():
-                    st.image(str(img_path), width=200)
+                    st.image(str(img_path), width=300)
                 else:
                     st.write("🖼️ Image not found")
         else:
