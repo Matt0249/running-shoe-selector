@@ -141,12 +141,6 @@ with col_left:
         index=1,
     )
 
-    mileage = st.selectbox(
-        "Weekly mileage",
-        ["<20 km", "20–40 km", "40–60 km", ">60 km"],
-        index=1,
-    )
-
     primary_goal = st.selectbox(
         "Primary goal",
         [
