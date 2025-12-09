@@ -272,61 +272,61 @@ if stability != "Any":
     filtered = filtered[filtered["Support/Stability"].str.capitalize() == stability]
 
     # ---------------- SCORING ----------------
-    def score_row(row):
-        s = 0
+def score_row(row):
+    s = 0
 
-        # Core matching
-        target_drop = sum(heel_drop) / 2
-        if abs(row["Heel Drop (mm)"] - target_drop) <= 2:
-            s += 2
+    # Core matching
+    target_drop = sum(heel_drop) / 2
+    if abs(row["Heel Drop (mm)"] - target_drop) <= 2:
+        s += 2
 
-        target_stack = sum(stack_height) / 2
-        if abs(row["Stack Height (mm)"] - target_stack) <= 5:
-            s += 2
+    target_stack = sum(stack_height) / 2
+    if abs(row["Stack Height (mm)"] - target_stack) <= 5:
+        s += 2
 
-        if carbon != "Any" and row["Carbon Plate"].capitalize() == carbon:
-            s += 2
+    if carbon != "Any" and row["Carbon Plate"].capitalize() == carbon:
+         s += 2
 
-        if rocker != "Any" and row["Rocker Type"].capitalize() == rocker:
-            s += 2
+    if rocker != "Any" and row["Rocker Type"].capitalize() == rocker:
+        s += 2
 
         
-        # Runner profile influence
-        cat_str = str(row["Category"]).lower()
+    # Runner profile influence
+    cat_str = str(row["Category"]).lower()
 
-        if primary_goal == "Long-distance racing (half/marathon)":
-            if "racing" in cat_str or "tempo" in cat_str:
-                s += 1
-        elif primary_goal == "Speed-focused (5k/10k)":
-            if "racing" in cat_str or "tempo" in cat_str:
-                s += 2
-        elif primary_goal == "Recovery / easy miles":
-        # Positive bias for appropriate shoes
-            if "daily" in cat_str or "trainer" in cat_str or "recovery" in cat_str:
-                s += 2
-        # Penalty: racing shoes are generally not suitable for recovery
-            if "racing" in cat_str:
-                s -= 1
+    if primary_goal == "Long-distance racing (half/marathon)":
+        if "racing" in cat_str or "tempo" in cat_str:
+            s += 1
+    elif primary_goal == "Speed-focused (5k/10k)":
+        if "racing" in cat_str or "tempo" in cat_str:
+            s += 2
+    elif primary_goal == "Recovery / easy miles":
+    # Positive bias for appropriate shoes
+        if "daily" in cat_str or "trainer" in cat_str or "recovery" in cat_str:
+            s += 2
+    # Penalty: racing shoes are generally not suitable for recovery
+        if "racing" in cat_str:
+            s -= 1
 
-        elif primary_goal == "General fitness":
-            if "daily" in cat_str or "trainer" in cat_str:
-                s += 1
+    elif primary_goal == "General fitness":
+        if "daily" in cat_str or "trainer" in cat_str:
+            s += 1
 
-        if experience == "Beginner":
-            if "daily" in cat_str and row["Heel Drop (mm)"] >= 6:
-                s += 1
+    if experience == "Beginner":
+        if "daily" in cat_str and row["Heel Drop (mm)"] >= 6:
+            s += 1
 
-        # Penalty: full-on racing shoes are usually not ideal for beginners
-            if "racing" in cat_str:
-                s -= 1
+    # Penalty: full-on racing shoes are usually not ideal for beginners
+        if "racing" in cat_str:
+            s -= 1
 
-        elif experience == "Advanced":
-            if "racing" in cat_str or "tempo" in cat_str:
-                s += 1
+    elif experience == "Advanced":
+        if "racing" in cat_str or "tempo" in cat_str:
+            s += 1
 
-        return s
+    return s
 
-    if not filtered.empty:
+if not filtered.empty:
         filtered = filtered.copy()
         filtered["Match Score"] = filtered.apply(score_row, axis=1)
         filtered = filtered.sort_values(["Match Score", "Stack Height (mm)"],
