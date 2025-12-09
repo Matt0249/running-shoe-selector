@@ -248,38 +248,38 @@ stack_height = stack_height_range
 cat_lower = df["Category"].astype(str).str.lower()
 masks = []
 
-    if "Daily / Easy" in selected_use_cases:
-        masks.append(cat_lower.str.contains("daily") | cat_lower.str.contains("trainer"))
+if "Daily / Easy" in selected_use_cases:
+    masks.append(cat_lower.str.contains("daily") | cat_lower.str.contains("trainer"))
 
-    if "Tempo / Workout" in selected_use_cases:
+if "Tempo / Workout" in selected_use_cases:
         masks.append(cat_lower.str.contains("tempo") | cat_lower.str.contains("interval"))
 
-    if "Racing" in selected_use_cases:
-        masks.append(cat_lower.str.contains("racing") | cat_lower.str.contains("race"))
+if "Racing" in selected_use_cases:
+    masks.append(cat_lower.str.contains("racing") | cat_lower.str.contains("race"))
 
-    if masks:
-        category_mask = masks[0]
-        for m in masks[1:]:
-            category_mask |= m
-    else:
-        category_mask = pd.Series(True, index=df.index)
+if masks:
+    category_mask = masks[0]
+    for m in masks[1:]:
+        category_mask |= m
+else:
+    category_mask = pd.Series(True, index=df.index)
 
-    filtered = df.copy()
-    filtered = filtered[
-        (filtered["Heel Drop (mm)"].between(*heel_drop_range)) &
-        (filtered["Stack Height (mm)"].between(*stack_height_range)) &
-        (category_mask)
-    ]
+filtered = df.copy()
+filtered = filtered[
+    (filtered["Heel Drop (mm)"].between(*heel_drop_range)) &
+    (filtered["Stack Height (mm)"].between(*stack_height_range)) &
+    (category_mask)
+]
 
-    if carbon != "Any":
-        filtered = filtered[filtered["Carbon Plate"].str.capitalize() == carbon]
+if carbon != "Any":
+    filtered = filtered[filtered["Carbon Plate"].str.capitalize() == carbon]
 
-    if rocker != "Any":
-        filtered = filtered[filtered["Rocker Type"].str.capitalize() == rocker]
+if rocker != "Any":
+    filtered = filtered[filtered["Rocker Type"].str.capitalize() == rocker]
 
-    # Stability filter
-    if stability != "Any":
-        filtered = filtered[filtered["Support/Stability"].str.capitalize() == stability]
+# Stability filter
+if stability != "Any":
+    filtered = filtered[filtered["Support/Stability"].str.capitalize() == stability]
 
     # ---------------- SCORING ----------------
     def score_row(row):
