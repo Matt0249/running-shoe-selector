@@ -225,10 +225,6 @@ col_action_1, col_action_2 = st.columns(2)
 
 with col_action_1:
     search_clicked = st.button("🔍 Search shoes")
-with col_action_2:
-    if st.button("Clear cache (reload data)"):
-        st.cache_data.clear()
-        st.experimental_rerun()
 
 if search_clicked:
     st.session_state["run_search"] = True
