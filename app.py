@@ -50,7 +50,7 @@ def render_shoe_card(row):
         unsafe_allow_html=True,
     )
 
-    img_col, info_col = st.columns([1, 1.2])
+    img_col, info_col = st.columns([1, 1.5])
 
     # --- Image column ---
     with img_col:
