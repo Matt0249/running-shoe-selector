@@ -245,8 +245,8 @@ stack_height = stack_height_range
 
 
     # ---------------- FILTERING ----------------
-cat_lower = df["Category"].astype(str).str.lower()
-    masks = []
+    cat_lower = df["Category"].astype(str).str.lower()
+        masks = []
 
     if "Daily / Easy" in selected_use_cases:
         masks.append(cat_lower.str.contains("daily") | cat_lower.str.contains("trainer"))
